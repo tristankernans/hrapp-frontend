@@ -4,7 +4,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 const AuthCtx = createContext(null)
 export const useAuth = () => useContext(AuthCtx)
 
-const API_BASE = 'hrapp-api-bme6bvfnh4dybnfr.ukwest-01.azurewebsites.net'
+const API_BASE = 'https://hrapp-api-bme6bvfnh4dybnfr.ukwest-01.azurewebsites.net'
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
