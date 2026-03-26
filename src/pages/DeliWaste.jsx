@@ -8,8 +8,10 @@ import React, { useEffect, useMemo, useState } from "react";
  * - Simple gallery layout
  */
 
+const API_BASE = "https://hrapp-api-bme6bvfn4dybnfr.ukwest-01.azurewebsites.net";
+
 async function apiFetch(path) {
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     credentials: "include",
   });
 
