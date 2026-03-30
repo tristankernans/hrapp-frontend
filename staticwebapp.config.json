@@ -1,13 +1,13 @@
 {
-  "routes": [
-    {
-      "route": "/*",
-      "redirect": "https://www.kernansportal.ie/:splat",
-      "statusCode": 301
-    }
-  ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/*.css", "/*.js", "/*.png", "/*.jpg", "/*.svg", "/favicon.ico"]
+    "exclude": [
+      "/assets/*",
+      "/*.css",
+      "/*.js",
+      "/*.png",
+      "/*.jpg",
+      "/*.svg"
+    ]
   }
 }
