@@ -143,7 +143,7 @@ export default function HR() {
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
-      <h1 className="mb-8 text-2xl font-semibold">HR Resources</h1>
+      <h1 className="mb-8 text-2xl font-semibold">HR Files</h1>
 
       {/* Upload Box */}
       <div className="rounded-2xl border p-6 shadow-sm">
@@ -182,7 +182,7 @@ export default function HR() {
                   {pendingFile ? "Change File" : "Choose File"}
                 </button>
 
-                <span className="text-sm text-slate-600 truncate">
+                <span className="truncate text-sm text-slate-600">
                   {pendingFile ? pendingFile.name : "No file chosen"}
                 </span>
               </div>
@@ -190,9 +190,7 @@ export default function HR() {
               <input
                 ref={fileInputRef}
                 type="file"
-                onChange={(e) =>
-                  setPendingFile(e.target.files?.[0] || null)
-                }
+                onChange={(e) => setPendingFile(e.target.files?.[0] || null)}
                 className="hidden"
               />
             </div>
@@ -206,8 +204,7 @@ export default function HR() {
                 type="button"
                 onClick={() => {
                   setPendingFile(null);
-                  if (fileInputRef.current)
-                    fileInputRef.current.value = "";
+                  if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
                 className="text-red-600 hover:underline"
               >
@@ -247,30 +244,38 @@ export default function HR() {
           </select>
         </div>
 
-        {files.map((f) => (
-          <div
-            key={f.name}
-            className="flex justify-between border-t py-2"
-          >
-            <span>{displayFileName(f.name)}</span>
-
-            <div className="flex gap-4">
-  <button
-    onClick={() => viewFile(f.name)}
-    className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium"
-  >
-    View
-  </button>
-
-  <button
-    onClick={() => deleteFile(f.name)}
-    className="text-red-600 hover:text-red-800 hover:underline text-sm font-medium"
-  >
-    Delete
-  </button>
-</div>
+        {files.length === 0 ? (
+          <div className="py-6 text-sm text-slate-500">
+            No files found in this category.
           </div>
-        ))}
+        ) : (
+          <div className={files.length > 6 ? "max-h-[350px] overflow-y-auto pr-2" : ""}>
+            {files.map((f) => (
+              <div
+                key={f.name}
+                className="flex justify-between border-t py-2"
+              >
+                <span>{displayFileName(f.name)}</span>
+
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => viewFile(f.name)}
+                    className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    View
+                  </button>
+
+                  <button
+                    onClick={() => deleteFile(f.name)}
+                    className="text-sm font-medium text-red-600 hover:text-red-800 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Preview */}
@@ -278,7 +283,7 @@ export default function HR() {
         <h2 className="mb-4 text-xl font-semibold">Preview</h2>
 
         {!previewUrl ? (
-          <div className="h-[70vh] flex items-center justify-center text-sm text-slate-500">
+          <div className="flex h-[70vh] items-center justify-center text-sm text-slate-500">
             Select a file to preview
           </div>
         ) : isPdf ? (
