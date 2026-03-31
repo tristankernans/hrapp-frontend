@@ -1,37 +1,20 @@
 import React, { useEffect, useState } from "react";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
-
-async function apiFetch(path) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    let msg = `${res.status} ${res.statusText}`;
-    try {
-      const j = await res.json();
-      if (j?.error) msg = j.error;
-    } catch {}
-    throw new Error(msg);
-  }
-
-  return res.json();
-}
-
 export default function Reports() {
   const [dashboards, setDashboards] = useState([]);
   const [selectedSite, setSelectedSite] = useState("");
   const [embedUrl, setEmbedUrl] = useState("");
   const [error, setError] = useState("");
 
+  const REPORTS_URL =
+    "https://analytics.zoho.eu/open-view/126018000009465966/e025c03eeb925d012bccddc694e518e34a7729d4c81ed1284acc4377cf831d9f";
+
   async function loadDashboards() {
     try {
       setError("");
 
-      const data = await apiFetch("/auth/reports/dashboards");
-
-      const list = Array.isArray(data?.dashboards) ? data.dashboards : [];
+      // keep the dropdown structure in place
+      const list = [{ site: "REPORT" }];
       setDashboards(list);
 
       const first = list?.[0]?.site || "";
@@ -40,7 +23,7 @@ export default function Reports() {
       setDashboards([]);
       setSelectedSite("");
       setEmbedUrl("");
-      setError(err.message || "Failed to load dashboards");
+      setError("Failed to load dashboards");
     }
   }
 
@@ -52,15 +35,10 @@ export default function Reports() {
 
     try {
       setError("");
-
-      const data = await apiFetch(
-        `/auth/reports/embed-url?site=${encodeURIComponent(site)}`
-      );
-
-      setEmbedUrl(data?.url || "");
+      setEmbedUrl(REPORTS_URL);
     } catch (err) {
       setEmbedUrl("");
-      setError(err.message || "Failed to load dashboard");
+      setError("Failed to load dashboard");
     }
   }
 
