@@ -4,7 +4,8 @@ import { Navigate, useLocation } from 'react-router-dom'
 const AuthCtx = createContext(null)
 export const useAuth = () => useContext(AuthCtx)
 
-const API_BASE = 'https://hrapp-api-bme6bvfnh4dybnfr.ukwest-01.azurewebsites.net'
+// ✅ USE ENV VARIABLE (THIS IS THE FIX)
+const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -31,12 +32,17 @@ export default function AuthProvider({ children }) {
       credentials: 'include',
       body: JSON.stringify({ email, password })
     })
+
     if (!res.ok) throw new Error('Invalid login')
+
     await refresh()
   }
 
   async function logout() {
-    await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' })
+    await fetch(`${API_BASE}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    })
     setUser(null)
   }
 
