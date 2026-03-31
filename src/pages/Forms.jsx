@@ -6,8 +6,10 @@ import React, { useEffect, useMemo, useState } from "react";
  * - Uses Azure SAS URLs for private blob images when azure_blob_name exists
  */
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 async function apiFetch(path) {
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     credentials: "include",
   });
 

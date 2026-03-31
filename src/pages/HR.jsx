@@ -1,5 +1,25 @@
 import React, { useEffect, useMemo, useState } from "react";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    credentials: "include",
+    ...options,
+  });
+
+  if (!res.ok) {
+    let msg = `${res.status} ${res.statusText}`;
+    try {
+      const j = await res.json();
+      if (j?.error) msg = j.error;
+    } catch {}
+    throw new Error(msg);
+  }
+
+  return res.json();
+}
+
 export default function HR() {
   const folderOptions = useMemo(
     () => [
@@ -30,22 +50,12 @@ export default function HR() {
       setError("");
 
       const qs = prefix ? `?prefix=${encodeURIComponent(prefix + "/")}` : "";
-      const res = await fetch(`/auth/hr/files${qs}`, {
-        credentials: "include",
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setFiles([]);
-        setError(data?.error || "Failed to load files");
-        return;
-      }
+      const data = await apiFetch(`/auth/hr/files${qs}`);
 
       setFiles(Array.isArray(data) ? data : []);
     } catch (err) {
       setFiles([]);
-      setError("Failed to load files");
+      setError(err.message || "Failed to load files");
     }
   }
 
@@ -63,23 +73,15 @@ export default function HR() {
 
       const folderToUse = selectedFolder === "" ? "" : selectedFolder;
 
-      const sasRes = await fetch("/auth/hr/files/sas", {
+      const sasData = await apiFetch("/auth/hr/files/sas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({
           filename: file.name,
           contentType: file.type,
           folder: folderToUse,
         }),
       });
-
-      const sasData = await sasRes.json();
-
-      if (!sasRes.ok) {
-        alert(sasData?.error || "Failed to get upload URL");
-        return;
-      }
 
       const { uploadUrl } = sasData;
 
@@ -100,7 +102,7 @@ export default function HR() {
       await loadFiles(selectedFolder);
       e.target.value = "";
     } catch (err) {
-      alert("Upload failed. Check console/network for details.");
+      alert(err.message || "Upload failed. Check console/network for details.");
     }
   }
 
@@ -108,24 +110,14 @@ export default function HR() {
     try {
       setError("");
 
-      const res = await fetch(
-        `/auth/hr/files/view-url?name=${encodeURIComponent(name)}`,
-        {
-          credentials: "include",
-        }
+      const data = await apiFetch(
+        `/auth/hr/files/view-url?name=${encodeURIComponent(name)}`
       );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data?.error || "Failed to get preview URL");
-        return;
-      }
 
       setPreviewUrl(data.url || "");
       setSelectedFile(name);
     } catch (err) {
-      alert("Failed to get preview URL");
+      alert(err.message || "Failed to get preview URL");
     }
   }
 
@@ -135,17 +127,9 @@ export default function HR() {
     try {
       setError("");
 
-      const res = await fetch(`/auth/hr/files?name=${encodeURIComponent(name)}`, {
+      await apiFetch(`/auth/hr/files?name=${encodeURIComponent(name)}`, {
         method: "DELETE",
-        credentials: "include",
       });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        alert(data?.error || "Delete failed");
-        return;
-      }
 
       if (selectedFile === name) {
         setPreviewUrl("");
@@ -154,7 +138,7 @@ export default function HR() {
 
       await loadFiles(selectedFolder);
     } catch (err) {
-      alert("Delete failed");
+      alert(err.message || "Delete failed");
     }
   }
 

@@ -1,5 +1,24 @@
 import React, { useEffect, useState } from "react";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
+async function apiFetch(path) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    let msg = `${res.status} ${res.statusText}`;
+    try {
+      const j = await res.json();
+      if (j?.error) msg = j.error;
+    } catch {}
+    throw new Error(msg);
+  }
+
+  return res.json();
+}
+
 export default function Reports() {
   const [dashboards, setDashboards] = useState([]);
   const [selectedSite, setSelectedSite] = useState("");
@@ -10,20 +29,9 @@ export default function Reports() {
     try {
       setError("");
 
-      const res = await fetch("/auth/reports/dashboards", {
-        credentials: "include",
-      });
-      const data = await res.json();
+      const data = await apiFetch("/auth/reports/dashboards");
 
-      if (!res.ok) {
-        setDashboards([]);
-        setSelectedSite("");
-        setEmbedUrl("");
-        setError(data?.error || "Failed to load dashboards");
-        return;
-      }
-
-      const list = Array.isArray(data.dashboards) ? data.dashboards : [];
+      const list = Array.isArray(data?.dashboards) ? data.dashboards : [];
       setDashboards(list);
 
       const first = list?.[0]?.site || "";
@@ -32,7 +40,7 @@ export default function Reports() {
       setDashboards([]);
       setSelectedSite("");
       setEmbedUrl("");
-      setError("Failed to load dashboards");
+      setError(err.message || "Failed to load dashboards");
     }
   }
 
@@ -45,24 +53,14 @@ export default function Reports() {
     try {
       setError("");
 
-      const res = await fetch(
-        `/auth/reports/embed-url?site=${encodeURIComponent(site)}`,
-        {
-          credentials: "include",
-        }
+      const data = await apiFetch(
+        `/auth/reports/embed-url?site=${encodeURIComponent(site)}`
       );
-      const data = await res.json();
 
-      if (!res.ok) {
-        setEmbedUrl("");
-        setError(data?.error || "Failed to load dashboard");
-        return;
-      }
-
-      setEmbedUrl(data.url || "");
+      setEmbedUrl(data?.url || "");
     } catch (err) {
       setEmbedUrl("");
-      setError("Failed to load dashboard");
+      setError(err.message || "Failed to load dashboard");
     }
   }
 
