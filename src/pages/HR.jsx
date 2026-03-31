@@ -254,10 +254,21 @@ export default function HR() {
           >
             <span>{displayFileName(f.name)}</span>
 
-            <div className="flex gap-3">
-              <button onClick={() => viewFile(f.name)}>View</button>
-              <button onClick={() => deleteFile(f.name)}>Delete</button>
-            </div>
+            <div className="flex gap-4">
+  <button
+    onClick={() => viewFile(f.name)}
+    className="text-blue-600 hover:text-blue-800 hover:underline text-sm font-medium"
+  >
+    View
+  </button>
+
+  <button
+    onClick={() => deleteFile(f.name)}
+    className="text-red-600 hover:text-red-800 hover:underline text-sm font-medium"
+  >
+    Delete
+  </button>
+</div>
           </div>
         ))}
       </div>
