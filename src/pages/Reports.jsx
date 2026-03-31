@@ -13,12 +13,7 @@ export default function Reports() {
     try {
       setError("");
 
-      // keep the dropdown structure in place
-      const list = [{ site: "REPORT" }];
-      setDashboards(list);
-
-      const first = list?.[0]?.site || "";
-      setSelectedSite((prev) => prev || first);
+     
     } catch (err) {
       setDashboards([]);
       setSelectedSite("");
