@@ -54,10 +54,8 @@ export default function HR() {
   async function loadFiles(prefix = viewFolder) {
     try {
       setError("");
-
       const qs = prefix ? `?prefix=${encodeURIComponent(prefix + "/")}` : "";
       const data = await apiFetch(`/auth/hr/files${qs}`);
-
       setFiles(Array.isArray(data) ? data : []);
     } catch (err) {
       setFiles([]);
@@ -67,7 +65,6 @@ export default function HR() {
 
   useEffect(() => {
     loadFiles(viewFolder);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function submitUpload(e) {
@@ -79,10 +76,7 @@ export default function HR() {
     }
 
     try {
-      setError("");
       setSubmitting(true);
-
-      const folderToUse = uploadFolder === "" ? "" : uploadFolder;
 
       const sasData = await apiFetch("/auth/hr/files/sas", {
         method: "POST",
@@ -90,7 +84,7 @@ export default function HR() {
         body: JSON.stringify({
           filename: pendingFile.name,
           contentType: pendingFile.type,
-          folder: folderToUse,
+          folder: uploadFolder,
         }),
       });
 
@@ -106,249 +100,181 @@ export default function HR() {
       });
 
       if (!putRes.ok) {
-        alert("Upload failed. Check console/network for details.");
+        alert("Upload failed.");
         return;
       }
 
       setPendingFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
 
-      setViewFolder(folderToUse);
-      await loadFiles(folderToUse);
+      setViewFolder(uploadFolder);
+      await loadFiles(uploadFolder);
     } catch (err) {
-      alert(err.message || "Upload failed. Check console/network for details.");
+      alert(err.message);
     } finally {
       setSubmitting(false);
     }
   }
 
   async function viewFile(name) {
-    try {
-      setError("");
-
-      const data = await apiFetch(
-        `/auth/hr/files/view-url?name=${encodeURIComponent(name)}`
-      );
-
-      setPreviewUrl(data.url || "");
-      setSelectedFile(name);
-    } catch (err) {
-      alert(err.message || "Failed to get preview URL");
-    }
+    const data = await apiFetch(
+      `/auth/hr/files/view-url?name=${encodeURIComponent(name)}`
+    );
+    setPreviewUrl(data.url);
+    setSelectedFile(name);
   }
 
   async function deleteFile(name) {
     if (!confirm(`Delete ${name}?`)) return;
 
-    try {
-      setError("");
+    await apiFetch(`/auth/hr/files?name=${encodeURIComponent(name)}`, {
+      method: "DELETE",
+    });
 
-      await apiFetch(`/auth/hr/files?name=${encodeURIComponent(name)}`, {
-        method: "DELETE",
-      });
-
-      if (selectedFile === name) {
-        setPreviewUrl("");
-        setSelectedFile("");
-      }
-
-      await loadFiles(viewFolder);
-    } catch (err) {
-      alert(err.message || "Delete failed");
+    if (selectedFile === name) {
+      setPreviewUrl("");
+      setSelectedFile("");
     }
+
+    await loadFiles(viewFolder);
   }
 
   const isPdf = selectedFile.toLowerCase().endsWith(".pdf");
 
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold">HR Resources</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Upload and view HR files by category.
-        </p>
-      </div>
+      <h1 className="mb-8 text-2xl font-semibold">HR Resources</h1>
 
-      {error && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
+      {/* Upload Box */}
+      <div className="rounded-2xl border p-6 shadow-sm">
+        <h2 className="mb-6 text-xl font-semibold">New Upload</h2>
 
-      <div className="space-y-8">
-        <div className="rounded-2xl border border-slate-300 bg-white p-6 shadow-sm">
-          <h2 className="mb-6 text-xl font-semibold text-slate-900">New Upload</h2>
-
-          <form onSubmit={submitUpload} className="space-y-6">
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Category
-                </label>
-                <select
-                  value={uploadFolder}
-                  onChange={(e) => setUploadFolder(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm"
-                >
-                  {folderOptions
-                    .filter((o) => o.value !== "")
-                    .map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div>
-               <label className="block cursor-pointer">
-  <span className="mb-2 block text-sm font-medium text-slate-700">
-    File
-  </span>
-
-  <div className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm hover:border-slate-400">
-    <input
-      ref={fileInputRef}
-      type="file"
-      onChange={(e) => setPendingFile(e.target.files?.[0] || null)}
-      className="w-full cursor-pointer"
-    />
-  </div>
-</label>
-              </div>
-            </div>
-
-            {pendingFile ? (
-  <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-    <span className="truncate">
-      Selected file: <span className="font-medium">{pendingFile.name}</span>
-    </span>
-
-    <button
-      type="button"
-      onClick={() => {
-        setPendingFile(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      }}
-      className="ml-4 text-red-600 hover:underline"
-    >
-      Remove
-    </button>
-  </div>
-) : null}
-
-            <button
-              type="submit"
-              disabled={submitting || !pendingFile}
-              className="rounded-lg bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {submitting ? "Uploading..." : "Submit Upload"}
-            </button>
-          </form>
-        </div>
-
-        <div className="rounded-2xl border border-slate-300 bg-white p-6 shadow-sm">
-          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">View Files</h2>
-
-            <div className="flex items-center gap-3">
-              <label className="text-sm text-slate-600">Category</label>
+        <form onSubmit={submitUpload} className="space-y-6">
+          <div className="grid gap-5 md:grid-cols-2">
+            {/* Category */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">Category</label>
               <select
-                value={viewFolder}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setViewFolder(v);
-                  loadFiles(v);
-                  setPreviewUrl("");
-                  setSelectedFile("");
-                }}
-                className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm"
+                value={uploadFolder}
+                onChange={(e) => setUploadFolder(e.target.value)}
+                className="w-full rounded-lg border px-4 py-3"
               >
-                {folderOptions.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
+                {folderOptions
+                  .filter((o) => o.value !== "")
+                  .map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
               </select>
             </div>
+
+            {/* File Input */}
+            <div>
+              <label className="mb-2 block text-sm font-medium">File</label>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="cursor-pointer rounded-lg border px-4 py-2 text-sm hover:bg-slate-50"
+                >
+                  {pendingFile ? "Change File" : "Choose File"}
+                </button>
+
+                <span className="text-sm text-slate-600 truncate">
+                  {pendingFile ? pendingFile.name : "No file chosen"}
+                </span>
+              </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                onChange={(e) =>
+                  setPendingFile(e.target.files?.[0] || null)
+                }
+                className="hidden"
+              />
+            </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200">
-            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-              <div className="text-sm font-semibold text-slate-900">Recent Files</div>
-              <div className="text-xs text-slate-500">
-                {viewFolder ? `Category: ${viewFolder}` : "All categories"}
-              </div>
+          {/* Selected file box */}
+          {pendingFile && (
+            <div className="flex justify-between rounded-lg border bg-slate-50 px-4 py-3 text-sm">
+              <span>{pendingFile.name}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setPendingFile(null);
+                  if (fileInputRef.current)
+                    fileInputRef.current.value = "";
+                }}
+                className="text-red-600 hover:underline"
+              >
+                Remove
+              </button>
             </div>
-
-            {files.length === 0 ? (
-              <div className="px-4 py-10 text-center text-sm text-slate-500">
-                No files found in this category.
-              </div>
-            ) : (
-              <div className={files.length > 5 ? "max-h-[360px] overflow-y-auto" : ""}>
-                {files.map((f) => (
-                  <div
-                    key={f.name}
-                    className="flex items-center justify-between gap-3 border-t border-slate-200 px-4 py-3 first:border-t-0"
-                  >
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-slate-800">
-                        {displayFileName(f.name)}
-                      </div>
-                      <div className="mt-1 text-xs text-slate-500">
-                        {f.lastModified
-                          ? new Date(f.lastModified).toLocaleString("en-IE")
-                          : "Unknown date"}
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 gap-4">
-                      <button
-                        onClick={() => viewFile(f.name)}
-                        className="text-sm text-blue-600 hover:underline"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => deleteFile(f.name)}
-                        className="text-sm text-red-600 hover:underline"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-300 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-xl font-semibold text-slate-900">Preview</h2>
-
-          {!previewUrl ? (
-            <div className="flex h-[75vh] items-center justify-center rounded-xl border border-slate-200 text-sm text-slate-500">
-              Select a file to preview
-            </div>
-          ) : isPdf ? (
-            <iframe
-              src={previewUrl}
-              className="h-[75vh] w-full rounded-xl border border-slate-200"
-              title="PDF Preview"
-            />
-          ) : (
-            <video
-              src={previewUrl}
-              controls
-              className="h-[75vh] w-full rounded-xl border border-slate-200 bg-black object-contain"
-            />
           )}
+
+          <button
+            type="submit"
+            disabled={!pendingFile || submitting}
+            className="rounded-lg bg-slate-900 px-5 py-3 text-white hover:bg-slate-800 disabled:opacity-50"
+          >
+            {submitting ? "Uploading..." : "Submit Upload"}
+          </button>
+        </form>
+      </div>
+
+      {/* View Section */}
+      <div className="mt-8 rounded-2xl border p-6 shadow-sm">
+        <div className="mb-4 flex justify-between">
+          <h2 className="text-xl font-semibold">View Files</h2>
+
+          <select
+            value={viewFolder}
+            onChange={(e) => {
+              setViewFolder(e.target.value);
+              loadFiles(e.target.value);
+            }}
+            className="rounded-lg border px-3 py-2 text-sm"
+          >
+            {folderOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {files.map((f) => (
+          <div
+            key={f.name}
+            className="flex justify-between border-t py-2"
+          >
+            <span>{displayFileName(f.name)}</span>
+
+            <div className="flex gap-3">
+              <button onClick={() => viewFile(f.name)}>View</button>
+              <button onClick={() => deleteFile(f.name)}>Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Preview */}
+      <div className="mt-8 rounded-2xl border p-6 shadow-sm">
+        <h2 className="mb-4 text-xl font-semibold">Preview</h2>
+
+        {!previewUrl ? (
+          <div className="h-[70vh] flex items-center justify-center text-sm text-slate-500">
+            Select a file to preview
+          </div>
+        ) : isPdf ? (
+          <iframe src={previewUrl} className="h-[70vh] w-full" />
+        ) : (
+          <video src={previewUrl} controls className="h-[70vh] w-full" />
+        )}
       </div>
     </div>
   );
