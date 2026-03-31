@@ -7,24 +7,33 @@ export default function Reports() {
   const [error, setError] = useState("");
 
   async function loadDashboards() {
-    setError("");
-    const res = await fetch("/auth/reports/dashboards", { credentials: "include" });
-    const data = await res.json();
+    try {
+      setError("");
 
-    if (!res.ok) {
+      const res = await fetch("/auth/reports/dashboards", {
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setDashboards([]);
+        setSelectedSite("");
+        setEmbedUrl("");
+        setError(data?.error || "Failed to load dashboards");
+        return;
+      }
+
+      const list = Array.isArray(data.dashboards) ? data.dashboards : [];
+      setDashboards(list);
+
+      const first = list?.[0]?.site || "";
+      setSelectedSite((prev) => prev || first);
+    } catch (err) {
       setDashboards([]);
       setSelectedSite("");
       setEmbedUrl("");
-      setError(data?.error || "Failed to load dashboards");
-      return;
+      setError("Failed to load dashboards");
     }
-
-    const list = data.dashboards || [];
-    setDashboards(list);
-
-    // auto-pick first site if none selected
-    const first = list?.[0]?.site || "";
-    setSelectedSite((prev) => prev || first);
   }
 
   async function loadEmbed(site) {
@@ -33,20 +42,28 @@ export default function Reports() {
       return;
     }
 
-    setError("");
-    const res = await fetch(
-      `/auth/reports/embed-url?site=${encodeURIComponent(site)}`,
-      { credentials: "include" }
-    );
-    const data = await res.json();
+    try {
+      setError("");
 
-    if (!res.ok) {
+      const res = await fetch(
+        `/auth/reports/embed-url?site=${encodeURIComponent(site)}`,
+        {
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        setEmbedUrl("");
+        setError(data?.error || "Failed to load dashboard");
+        return;
+      }
+
+      setEmbedUrl(data.url || "");
+    } catch (err) {
       setEmbedUrl("");
-      setError(data?.error || "Failed to load dashboard");
-      return;
+      setError("Failed to load dashboard");
     }
-
-    setEmbedUrl(data.url || "");
   }
 
   useEffect(() => {
@@ -117,7 +134,11 @@ export default function Reports() {
             Select a dashboard
           </div>
         ) : (
-          <iframe title="Zoho Dashboard" src={embedUrl} className="h-[88vh] w-full" />
+          <iframe
+            title="Zoho Dashboard"
+            src={embedUrl}
+            className="h-[88vh] w-full"
+          />
         )}
       </div>
     </div>

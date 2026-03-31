@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 export default function CVs() {
   const [sites, setSites] = useState([]);
   const [selectedSite, setSelectedSite] = useState("");
@@ -12,7 +14,6 @@ export default function CVs() {
   const [selectedBlob, setSelectedBlob] = useState("");
   const [error, setError] = useState("");
 
-  
   const applicationTypes = useMemo(
     () => [
       { value: "ALL", label: "All Applications" },
@@ -78,15 +79,14 @@ export default function CVs() {
     });
   }, [files, selectedAppType, dateFrom, dateTo]);
 
-
-const selectedFileExt = useMemo(() => {
+  const selectedFileExt = useMemo(() => {
     const name = selectedBlob.split("/").pop() || "";
     return name.includes(".") ? name.split(".").pop().toLowerCase() : "";
   }, [selectedBlob]);
 
   async function loadSites() {
     setError("");
-    const res = await fetch("/auth/cvs/sites", { credentials: "include" });
+    const res = await fetch(`${API_BASE}/auth/cvs/sites`, { credentials: "include" });
     const data = await res.json();
 
     if (!res.ok) {
@@ -110,7 +110,7 @@ const selectedFileExt = useMemo(() => {
     }
 
     setError("");
-    const res = await fetch(`/auth/cvs/files?site=${encodeURIComponent(site)}`, {
+    const res = await fetch(`${API_BASE}/auth/cvs/files?site=${encodeURIComponent(site)}`, {
       credentials: "include",
     });
     const data = await res.json();
@@ -129,7 +129,7 @@ const selectedFileExt = useMemo(() => {
   async function viewFile(blobName) {
     setError("");
     const res = await fetch(
-      `/auth/cvs/files/view-url?name=${encodeURIComponent(blobName)}`,
+      `${API_BASE}/auth/cvs/files/view-url?name=${encodeURIComponent(blobName)}`,
       { credentials: "include" }
     );
     const data = await res.json();
@@ -187,7 +187,6 @@ const selectedFileExt = useMemo(() => {
             )}
           </select>
 
-
           <select
             value={selectedAppType}
             onChange={(e) => setSelectedAppType(e.target.value)}
@@ -199,65 +198,64 @@ const selectedFileExt = useMemo(() => {
               </option>
             ))}
           </select>
-<div className="relative">
-  <button
-    type="button"
-    onClick={() => setShowDatePicker((s) => !s)}
-    className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
-  >
-    {dateFilterLabel}
-  </button>
 
-  {showDatePicker && (
-    <div className="absolute right-0 z-20 mt-2 w-64 rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
-      <div className="grid grid-cols-1 gap-2">
-        <label className="text-xs text-slate-600">
-          From
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
-          />
-        </label>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowDatePicker((s) => !s)}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+            >
+              {dateFilterLabel}
+            </button>
 
-        <label className="text-xs text-slate-600">
-          To
-          <input
-            type="date"
-            value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
-          />
-        </label>
-      </div>
+            {showDatePicker && (
+              <div className="absolute right-0 z-20 mt-2 w-64 rounded-lg border border-slate-200 bg-white p-3 shadow-lg">
+                <div className="grid grid-cols-1 gap-2">
+                  <label className="text-xs text-slate-600">
+                    From
+                    <input
+                      type="date"
+                      value={dateFrom}
+                      onChange={(e) => setDateFrom(e.target.value)}
+                      className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                    />
+                  </label>
 
-      <div className="mt-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => {
-            setDateFrom("");
-            setDateTo("");
-            setShowDatePicker(false);
-          }}
-          className="text-sm text-slate-600 hover:text-slate-900"
-        >
-          Clear
-        </button>
+                  <label className="text-xs text-slate-600">
+                    To
+                    <input
+                      type="date"
+                      value={dateTo}
+                      onChange={(e) => setDateTo(e.target.value)}
+                      className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                    />
+                  </label>
+                </div>
 
-        <button
-          type="button"
-          onClick={() => setShowDatePicker(false)}
-          className="rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-800"
-        >
-          Apply
-        </button>
-      </div>
-    </div>
-  )}
-</div>
+                <div className="mt-3 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDateFrom("");
+                      setDateTo("");
+                      setShowDatePicker(false);
+                    }}
+                    className="text-sm text-slate-600 hover:text-slate-900"
+                  >
+                    Clear
+                  </button>
 
-
+                  <button
+                    type="button"
+                    onClick={() => setShowDatePicker(false)}
+                    className="rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-800"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={() => loadFiles(selectedSite)}
@@ -290,56 +288,57 @@ const selectedFileExt = useMemo(() => {
           ) : (
             <div className={filteredFiles.length > 4 ? "max-h-[360px] overflow-y-auto pr-2" : ""}>
               {filteredFiles.map((f) => (
-              <div
-                key={f.blobName}
-                className="flex items-center justify-between gap-3 border-t py-2 first:border-t-0"
-              >
-                <div className="min-w-0">
-                  {/*<div className="truncate text-sm font-medium">
-                    {f.filename || f.blobName}
-                  </div>*/}
-                  
-                  {(f.metadata?.firstname || f.metadata?.lastname || f.metadata?.phone) ? (
-  <div className="mt-0.5 text-xs text-slate-600">
-    <span className="font-medium">
-      {f.metadata?.firstname || ""} {f.metadata?.lastname || ""}
-    </span>
-    {f.metadata?.phone ? (
-      <span className="text-slate-500"> • {f.metadata.phone}</span>
-    ) : null}
-    {(() => {
-      const appType =
-        f.metadata?.applicationtype ||
-        f.metadata?.application_type ||
-        f.metadata?.applicationType ||
-        f.metadata?.apptype ||
-        f.metadata?.type ||
-        "";
-      return appType ? (
-        <span className="text-slate-500"> • {appType}</span>
-      ) : null;
-    })()}
-  </div>
-) : null}
-                  <div className="text-xs text-slate-500">
-                    {f.lastModified
-                      ? new Date(f.lastModified).toLocaleString()
-                      : "Unknown date"}
-                    {" • "}
-                    {(f.size / 1024).toFixed(1)} KB
+                <div
+                  key={f.blobName}
+                  className="flex items-center justify-between gap-3 border-t py-2 first:border-t-0"
+                >
+                  <div className="min-w-0">
+                    {/*<div className="truncate text-sm font-medium">
+                      {f.filename || f.blobName}
+                    </div>*/}
+
+                    {(f.metadata?.firstname || f.metadata?.lastname || f.metadata?.phone) ? (
+                      <div className="mt-0.5 text-xs text-slate-600">
+                        <span className="font-medium">
+                          {f.metadata?.firstname || ""} {f.metadata?.lastname || ""}
+                        </span>
+                        {f.metadata?.phone ? (
+                          <span className="text-slate-500"> • {f.metadata.phone}</span>
+                        ) : null}
+                        {(() => {
+                          const appType =
+                            f.metadata?.applicationtype ||
+                            f.metadata?.application_type ||
+                            f.metadata?.applicationType ||
+                            f.metadata?.apptype ||
+                            f.metadata?.type ||
+                            "";
+                          return appType ? (
+                            <span className="text-slate-500"> • {appType}</span>
+                          ) : null;
+                        })()}
+                      </div>
+                    ) : null}
+
+                    <div className="text-xs text-slate-500">
+                      {f.lastModified
+                        ? new Date(f.lastModified).toLocaleString()
+                        : "Unknown date"}
+                      {" • "}
+                      {(f.size / 1024).toFixed(1)} KB
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 gap-3">
+                    <button
+                      onClick={() => viewFile(f.blobName)}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      View / Download
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex shrink-0 gap-3">
-                  <button
-                    onClick={() => viewFile(f.blobName)}
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    View / Download
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))}
             </div>
           )}
         </div>

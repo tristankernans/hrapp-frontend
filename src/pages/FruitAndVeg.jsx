@@ -7,24 +7,33 @@ export default function Reports() {
   const [error, setError] = useState("");
 
   async function loadDashboards() {
-    setError("");
-    const res = await fetch("/auth/reports/dashboards", { credentials: "include" });
-    const data = await res.json();
+    try {
+      setError("");
 
-    if (!res.ok) {
+      const res = await fetch("/auth/reports/dashboards", {
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setDashboards([]);
+        setSelectedSite("");
+        setEmbedUrl("");
+        setError(data?.error || "Failed to load dashboards");
+        return;
+      }
+
+      const list = Array.isArray(data.dashboards) ? data.dashboards : [];
+      setDashboards(list);
+
+      const first = list?.[0]?.site || "";
+      setSelectedSite((prev) => prev || first);
+    } catch (err) {
       setDashboards([]);
       setSelectedSite("");
       setEmbedUrl("");
-      setError(data?.error || "Failed to load dashboards");
-      return;
+      setError("Failed to load dashboards");
     }
-
-    const list = data.dashboards || [];
-    setDashboards(list);
-
-    // auto-pick first site if none selected
-    const first = list?.[0]?.site || "";
-    setSelectedSite((prev) => prev || first);
   }
 
   async function loadEmbed(site) {
@@ -33,20 +42,28 @@ export default function Reports() {
       return;
     }
 
-    setError("");
-    const res = await fetch(
-      `/auth/reports/embed-url?site=${encodeURIComponent(site)}`,
-      { credentials: "include" }
-    );
-    const data = await res.json();
+    try {
+      setError("");
 
-    if (!res.ok) {
+      const res = await fetch(
+        `/auth/reports/embed-url?site=${encodeURIComponent(site)}`,
+        {
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        setEmbedUrl("");
+        setError(data?.error || "Failed to load dashboard");
+        return;
+      }
+
+      setEmbedUrl(data.url || "");
+    } catch (err) {
       setEmbedUrl("");
-      setError(data?.error || "Failed to load dashboard");
-      return;
+      setError("Failed to load dashboard");
     }
-
-    setEmbedUrl(data.url || "");
   }
 
   useEffect(() => {
@@ -63,15 +80,23 @@ export default function Reports() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Fruit & Veg P+Ls</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            
-          </p>
+          <p className="mt-1 text-sm text-slate-500"></p>
         </div>
 
         <div className="flex items-center gap-3">
-          
-
-          
+          {dashboards.length > 0 && (
+            <select
+              value={selectedSite}
+              onChange={(e) => setSelectedSite(e.target.value)}
+              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+            >
+              {dashboards.map((d, i) => (
+                <option key={`${d.site || "site"}-${i}`} value={d.site}>
+                  {d.site}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       </div>
 
@@ -83,9 +108,7 @@ export default function Reports() {
 
       <div className="mt-6 overflow-hidden rounded-xl border bg-white shadow-sm">
         <div className="flex items-center justify-between border-b px-4 py-3">
-          <div className="text-sm font-medium text-slate-700">
-            P+Ls
-          </div>
+          <div className="text-sm font-medium text-slate-700">P+Ls</div>
         </div>
 
         {!embedUrl ? (
@@ -93,7 +116,12 @@ export default function Reports() {
             Select a dashboard
           </div>
         ) : (
-          <iframe width="1200" height="600" allowFullScreen="true" src="https://analytics.zoho.eu/ZDBSlideshow.cc?SLIDEID=126018000016544053&SLIDEKEY=d5bc0362431be14d69f7f525010cb673604b32092dab97e6c7c75b50a896383c&INTERVAL=25&AUTOPLAY=true&INCLUDETITLE=true&INCLUDEDESC=true&SOCIALWIDGETS=false"></iframe>
+          <iframe
+            src={embedUrl}
+            className="h-[88vh] w-full"
+            title="Fruit & Veg P+Ls"
+            allowFullScreen
+          />
         )}
       </div>
     </div>

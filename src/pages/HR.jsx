@@ -13,24 +13,40 @@ export default function HR() {
     []
   );
 
-  const [selectedFolder, setSelectedFolder] = useState(""); // default
+  const [selectedFolder, setSelectedFolder] = useState("");
   const [files, setFiles] = useState([]);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState("");
+  const [error, setError] = useState("");
 
-
-  // Pretty display name (keep full path for backend operations)
   const displayFileName = (fullName) => {
     const base = String(fullName || "").split("/").pop() || "";
-    const noExt = base.replace(/\.[^/.]+$/, ""); // remove final extension
+    const noExt = base.replace(/\.[^/.]+$/, "");
     return noExt.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
   };
-  const [selectedFile, setSelectedFile] = useState("");
 
   async function loadFiles(prefix = selectedFolder) {
-    const qs = prefix ? `?prefix=${encodeURIComponent(prefix + "/")}` : "";
-    const res = await fetch(`/auth/hr/files${qs}`, { credentials: "include" });
-    const data = await res.json();
-    setFiles(Array.isArray(data) ? data : []);
+    try {
+      setError("");
+
+      const qs = prefix ? `?prefix=${encodeURIComponent(prefix + "/")}` : "";
+      const res = await fetch(`/auth/hr/files${qs}`, {
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setFiles([]);
+        setError(data?.error || "Failed to load files");
+        return;
+      }
+
+      setFiles(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setFiles([]);
+      setError("Failed to load files");
+    }
   }
 
   useEffect(() => {
@@ -42,84 +58,104 @@ export default function HR() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // If the user chose "All folders", upload to root (no folder prefix)
-    const folderToUse = selectedFolder === "" ? "" : selectedFolder;
+    try {
+      setError("");
 
-    // get SAS (server will build blobName as `${folder}/${filename}`)
-    const sasRes = await fetch("/auth/hr/files/sas", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        filename: file.name,
-        contentType: file.type,
-        folder: folderToUse,
-      }),
-    });
+      const folderToUse = selectedFolder === "" ? "" : selectedFolder;
 
-    const sasData = await sasRes.json();
-    if (!sasRes.ok) {
-      alert(sasData?.error || "Failed to get upload URL");
-      return;
-    }
+      const sasRes = await fetch("/auth/hr/files/sas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type,
+          folder: folderToUse,
+        }),
+      });
 
-    const { uploadUrl } = sasData;
+      const sasData = await sasRes.json();
 
-    // upload to Azure
-    const putRes = await fetch(uploadUrl, {
-      method: "PUT",
-      headers: {
-        "x-ms-blob-type": "BlockBlob",
-        "Content-Type": file.type || "application/octet-stream",
-      },
-      body: file,
-    });
+      if (!sasRes.ok) {
+        alert(sasData?.error || "Failed to get upload URL");
+        return;
+      }
 
-    if (!putRes.ok) {
+      const { uploadUrl } = sasData;
+
+      const putRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "x-ms-blob-type": "BlockBlob",
+          "Content-Type": file.type || "application/octet-stream",
+        },
+        body: file,
+      });
+
+      if (!putRes.ok) {
+        alert("Upload failed. Check console/network for details.");
+        return;
+      }
+
+      await loadFiles(selectedFolder);
+      e.target.value = "";
+    } catch (err) {
       alert("Upload failed. Check console/network for details.");
-      return;
     }
-
-    await loadFiles(selectedFolder);
-    e.target.value = "";
   }
 
   async function viewFile(name) {
-    const res = await fetch(
-      `/auth/hr/files/view-url?name=${encodeURIComponent(name)}`,
-      { credentials: "include" }
-    );
-    const data = await res.json();
+    try {
+      setError("");
 
-    if (!res.ok) {
-      alert(data?.error || "Failed to get preview URL");
-      return;
+      const res = await fetch(
+        `/auth/hr/files/view-url?name=${encodeURIComponent(name)}`,
+        {
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data?.error || "Failed to get preview URL");
+        return;
+      }
+
+      setPreviewUrl(data.url || "");
+      setSelectedFile(name);
+    } catch (err) {
+      alert("Failed to get preview URL");
     }
-
-    setPreviewUrl(data.url);
-    setSelectedFile(name);
   }
 
   async function deleteFile(name) {
     if (!confirm(`Delete ${name}?`)) return;
 
-    const res = await fetch(`/auth/hr/files?name=${encodeURIComponent(name)}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+    try {
+      setError("");
 
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      alert(data?.error || "Delete failed");
-      return;
+      const res = await fetch(`/auth/hr/files?name=${encodeURIComponent(name)}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        alert(data?.error || "Delete failed");
+        return;
+      }
+
+      if (selectedFile === name) {
+        setPreviewUrl("");
+        setSelectedFile("");
+      }
+
+      await loadFiles(selectedFolder);
+    } catch (err) {
+      alert("Delete failed");
     }
-
-    if (selectedFile === name) {
-      setPreviewUrl("");
-      setSelectedFile("");
-    }
-
-    await loadFiles(selectedFolder);
   }
 
   const isPdf = selectedFile.toLowerCase().endsWith(".pdf");
@@ -135,9 +171,7 @@ export default function HR() {
             onChange={(e) => {
               const v = e.target.value;
               setSelectedFolder(v);
-              // refresh list immediately when folder changes
               loadFiles(v);
-              // clear preview when switching folders (optional)
               setPreviewUrl("");
               setSelectedFile("");
             }}
@@ -157,9 +191,13 @@ export default function HR() {
         </div>
       </div>
 
-      {/* Layout: list on top, preview full width below */}
+      {error && (
+        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
       <div className="mt-8 grid grid-cols-1 gap-6">
-        {/* File list */}
         <div className="rounded-xl border p-4">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold">Files</h2>
@@ -173,33 +211,34 @@ export default function HR() {
               No files found in this folder.
             </div>
           ) : (
-            files.map((f) => (
-              <div
-                key={f.name}
-                className="flex items-center justify-between gap-3 border-t py-2 first:border-t-0"
-              >
-                <span className="truncate text-sm">{displayFileName(f.name)}</span>
+            <div className={files.length > 4 ? "max-h-[360px] overflow-y-auto pr-2" : ""}>
+              {files.map((f) => (
+                <div
+                  key={f.name}
+                  className="flex items-center justify-between gap-3 border-t py-2 first:border-t-0"
+                >
+                  <span className="truncate text-sm">{displayFileName(f.name)}</span>
 
-                <div className="flex shrink-0 gap-3">
-                  <button
-                    onClick={() => viewFile(f.name)}
-                    className="text-sm text-blue-600 hover:underline"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => deleteFile(f.name)}
-                    className="text-sm text-red-600 hover:underline"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex shrink-0 gap-3">
+                    <button
+                      onClick={() => viewFile(f.name)}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => deleteFile(f.name)}
+                      className="text-sm text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Preview */}
         <div className="rounded-xl border p-4">
           <h2 className="mb-3 text-sm font-semibold">Preview</h2>
 

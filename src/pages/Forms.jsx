@@ -19,6 +19,7 @@ async function apiFetch(path) {
     } catch {}
     throw new Error(msg);
   }
+
   return res.json();
 }
 
@@ -56,6 +57,7 @@ function formatDateOnly(s) {
 
   const m = String(s).trim().match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
   let d;
+
   if (m) {
     const day = Number(m[1]);
     const month = Number(m[2]);
@@ -97,6 +99,7 @@ function getSite(payload) {
   const v = item?.value;
   if (v == null) return "";
   if (typeof v === "string" || typeof v === "number") return v.toString().trim();
+
   try {
     return JSON.stringify(v);
   } catch {
@@ -273,6 +276,7 @@ export default function Forms() {
       setSelectedId("");
       return;
     }
+
     const exists = enriched.some((r) => (r.submission_id || r.id) === selectedId);
     if (!exists) {
       const first = enriched[0]?.submission_id || enriched[0]?.id || "";
@@ -467,12 +471,14 @@ export default function Forms() {
                       {selected._summary?.site || selected.site_code || "—"}
                     </div>
                   </div>
+
                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                     <div className="text-xs text-slate-500">Inspector</div>
                     <div className="mt-1 text-sm font-semibold text-slate-900">
                       {selected._summary?.inspector || "—"}
                     </div>
                   </div>
+
                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                     <div className="text-xs text-slate-500">Inspection Date</div>
                     <div className="mt-1 text-sm font-semibold text-slate-900">
@@ -508,8 +514,12 @@ export default function Forms() {
                         const imageUrl = getResolvedImageUrl(img);
 
                         return (
-                          <div key={`${img.azureBlobName || img.url}-${idx}`} className="rounded-lg border border-slate-200 p-3">
+                          <div
+                            key={`${img.azureBlobName || img.url}-${idx}`}
+                            className="rounded-lg border border-slate-200 p-3"
+                          >
                             <div className="text-xs font-semibold text-slate-800">{img.title}</div>
+
                             {img.description ? (
                               <div className="text-xs text-slate-500">{img.description}</div>
                             ) : null}
@@ -538,7 +548,9 @@ export default function Forms() {
                             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
                               {img.name ? <span className="truncate">{img.name}</span> : null}
                               {img.mime ? <span>{img.mime}</span> : null}
-                              {Number.isFinite(img.size) ? <span>{Math.round(img.size / 1024)} KB</span> : null}
+                              {Number.isFinite(img.size) ? (
+                                <span>{Math.round(img.size / 1024)} KB</span>
+                              ) : null}
                               {img.width && img.height ? (
                                 <span>
                                   {img.width}×{img.height}
@@ -546,7 +558,12 @@ export default function Forms() {
                               ) : null}
                               {img.isAzure ? <span className="text-emerald-600">Azure</span> : null}
                               {imageUrl ? (
-                                <a className="text-slate-700 underline" href={imageUrl} target="_blank" rel="noreferrer">
+                                <a
+                                  className="text-slate-700 underline"
+                                  href={imageUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
                                   Open
                                 </a>
                               ) : (
@@ -571,14 +588,26 @@ export default function Forms() {
                     <div className="overflow-hidden rounded-lg border border-slate-200">
                       <div className="max-h-[360px] overflow-y-auto">
                         {answers.map((a, idx) => (
-                          <div key={idx} className="grid grid-cols-12 gap-2 border-b border-slate-200 px-3 py-2 last:border-b-0">
+                          <div
+                            key={idx}
+                            className="grid grid-cols-12 gap-2 border-b border-slate-200 px-3 py-2 last:border-b-0"
+                          >
                             <div className="col-span-12 md:col-span-5">
                               <div className="text-xs font-semibold text-slate-800">{a.title}</div>
-                              {a.type ? <div className="text-[11px] text-slate-500">{a.type}</div> : null}
+                              {a.type ? (
+                                <div className="text-[11px] text-slate-500">{a.type}</div>
+                              ) : null}
                             </div>
+
                             <div className="col-span-12 md:col-span-7">
-                              <div className="whitespace-pre-wrap text-sm text-slate-700">{a.value}</div>
-                              {a.description ? <div className="mt-1 text-[11px] text-slate-500">{a.description}</div> : null}
+                              <div className="whitespace-pre-wrap text-sm text-slate-700">
+                                {a.value}
+                              </div>
+                              {a.description ? (
+                                <div className="mt-1 text-[11px] text-slate-500">
+                                  {a.description}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         ))}
@@ -588,7 +617,9 @@ export default function Forms() {
                 </div>
 
                 <details className="mt-6 rounded-lg border border-slate-200 p-3">
-                  <summary className="cursor-pointer text-sm font-semibold text-slate-900">Raw payload</summary>
+                  <summary className="cursor-pointer text-sm font-semibold text-slate-900">
+                    Raw payload
+                  </summary>
                   <pre className="mt-3 max-h-[360px] overflow-auto rounded-md bg-slate-900 p-3 text-xs text-slate-100">
                     {JSON.stringify(payload, null, 2)}
                   </pre>
@@ -617,7 +648,11 @@ export default function Forms() {
                 Close
               </button>
             </div>
-            <img src={imageModalUrl} alt="Full size" className="max-h-[80vh] max-w-[88vw] object-contain" />
+            <img
+              src={imageModalUrl}
+              alt="Full size"
+              className="max-h-[80vh] max-w-[88vw] object-contain"
+            />
           </div>
         </div>
       ) : null}
