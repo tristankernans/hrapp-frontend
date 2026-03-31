@@ -249,7 +249,7 @@ export default function HR() {
             No files found in this category.
           </div>
         ) : (
-          <div className={files.length > 6 ? "max-h-[350px] overflow-y-auto pr-2" : ""}>
+          <div className="max-h-[250px] overflow-y-auto pr-2">
             {files.map((f) => (
               <div
                 key={f.name}
