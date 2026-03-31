@@ -203,23 +203,43 @@ export default function HR() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  File
-                </label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  onChange={(e) => setPendingFile(e.target.files?.[0] || null)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm"
-                />
+               <label className="block cursor-pointer">
+  <span className="mb-2 block text-sm font-medium text-slate-700">
+    File
+  </span>
+
+  <div className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm hover:border-slate-400">
+    <input
+      ref={fileInputRef}
+      type="file"
+      onChange={(e) => setPendingFile(e.target.files?.[0] || null)}
+      className="w-full cursor-pointer"
+    />
+  </div>
+</label>
               </div>
             </div>
 
             {pendingFile ? (
-              <div className="text-sm text-slate-600">
-                Selected file: <span className="font-medium">{pendingFile.name}</span>
-              </div>
-            ) : null}
+  <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+    <span className="truncate">
+      Selected file: <span className="font-medium">{pendingFile.name}</span>
+    </span>
+
+    <button
+      type="button"
+      onClick={() => {
+        setPendingFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }}
+      className="ml-4 text-red-600 hover:underline"
+    >
+      Remove
+    </button>
+  </div>
+) : null}
 
             <button
               type="submit"
