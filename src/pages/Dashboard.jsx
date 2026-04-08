@@ -11,6 +11,7 @@ const tiles = [
   { label: "BUTCHERY P+L", to: "/butchery", icon: "🥩" },
   { label: "CHILLED P+L", to: "/chilled", icon: "❄️"},
   { label: "DELI P+L", to: "/deli", icon: "🍔"},
+  { label: "COFFEE P+L", to: "/coffee", icon: "☕"},
 ];
 
 function Tile({ label, to, icon }) {
