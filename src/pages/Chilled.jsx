@@ -5,7 +5,7 @@ export default function Reports() {
   const [error, setError] = useState("");
 
   const CHILLED_URL =
-    "https://analytics.zoho.eu/open-view/126018000016544021/77be75d25b4ba68a97a89b1454bb6197ee4988ed27eba0bcddc21165a7f2cd28";
+    "https://analytics.zoho.eu/open-view/126018000017049848/3c6a178d806933181506931d0e414eae127c523fe9cdc6c24fb43ee2ac165564";
 
   async function loadEmbed() {
     try {

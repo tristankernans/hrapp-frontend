@@ -7,10 +7,10 @@ const tiles = [
   { label: "DELI WASTE", to: "/deliwaste", icon: "🗑️" },
   { label: "CALLOUT", to: "/callout", icon: "👷" },
   { label: "FORMS", to: "/forms", icon: "📋" },
-  { label: "FRUIT & VEG", to: "/fruitveg", icon: "🍎" },
-  { label: "BUTCHERY & DELI", to: "/butchery", icon: "🥩" },
-  { label: "CHILLED", to: "/chilled", icon: "❄️"},
-  { label: "DELI", to: "/deli", icon: "🍔"},
+  { label: "FRUIT & VEG P+L", to: "/fruitveg", icon: "🍎" },
+  { label: "BUTCHERY P+L", to: "/butchery", icon: "🥩" },
+  { label: "CHILLED P+L", to: "/chilled", icon: "❄️"},
+  { label: "DELI P+L", to: "/deli", icon: "🍔"},
 ];
 
 function Tile({ label, to, icon }) {
