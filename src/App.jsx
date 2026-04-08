@@ -14,6 +14,8 @@ import Callout from "./pages/Callout.jsx";
 import Forms from "./pages/Forms.jsx";
 import FruitAndVeg from "./pages/FruitAndVeg.jsx";
 import Butchery from "./pages/Butchery.jsx";
+import Chilled from "./pages/Chilled.jsx";
+import Deli from "./pages/Deli.jsx";
 
 function DashboardLayout() {
   const { user, logout } = useAuth();
@@ -69,6 +71,8 @@ function DashboardLayout() {
           <Route path="/forms" element={<Forms />} />
           <Route path="/fruitveg" element={<FruitAndVeg />} />
           <Route path="/butchery" element={<Butchery />} />
+          <Route path="/deli" element={<Deli />} />
+          <Route path="/chilled" element={<Chilled />} />
 
           {/* ✅ Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -9,6 +9,8 @@ const tiles = [
   { label: "FORMS", to: "/forms", icon: "📋" },
   { label: "FRUIT & VEG", to: "/fruitveg", icon: "🍎" },
   { label: "BUTCHERY & DELI", to: "/butchery", icon: "🥩" },
+  { label: "CHILLED", to: "/chilled", icon: "❄️"},
+  { label: "DELI", to: "/deli", icon: "🍔"},
 ];
 
 function Tile({ label, to, icon }) {

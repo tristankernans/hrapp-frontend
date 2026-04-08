@@ -247,7 +247,7 @@ export default function HR() {
         {files.length === 0 ? (
           <div className="py-6 text-sm text-slate-500">
             No files found in this category.
-          </div>
+          </div> 
         ) : (
           <div className="max-h-[250px] overflow-y-auto pr-2">
             {files.map((f) => (
