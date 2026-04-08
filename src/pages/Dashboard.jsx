@@ -8,9 +8,8 @@ const tiles = [
   { label: "CALLOUT", to: "/callout", icon: "👷" },
   { label: "FORMS", to: "/forms", icon: "📋" },
   { label: "FRUIT & VEG P+L", to: "/fruitveg", icon: "🍎" },
-  { label: "BUTCHERY P+L", to: "/butchery", icon: "🥩" },
+  { label: "BUTCHERY & DELI P+L", to: "/butchery", icon: "🥩" },
   { label: "CHILLED P+L", to: "/chilled", icon: "❄️"},
-  { label: "DELI P+L", to: "/deli", icon: "🍔"},
   { label: "COFFEE P+L", to: "/coffee", icon: "☕"},
 ];
 
