@@ -8,7 +8,6 @@ const tiles = [
   { label: "COFFEE P+L", to: "/coffee", icon: "☕"},
 ];
 
-const navigate = useNavigate();
 
 function Tile({ label, to, icon }) {
   return (
