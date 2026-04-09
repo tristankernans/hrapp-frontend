@@ -1,13 +1,10 @@
 import { Link } from "react-router-dom";
 
 const tiles = [
-  { label: "HR/TRAINING", to: "/hr", icon: "👥" },
-  { label: "REPORTS", to: "/reports", icon: "📊" },
-  { label: "CVS", to: "/cvs", icon: "📄" },
-  { label: "DELI WASTE", to: "/deliwaste", icon: "🗑️" },
-  { label: "CALLOUTS", to: "/callout", icon: "👷" },
-  { label: "END OF DAY CHECKLISTS", to: "/forms", icon: "📋" },
-  { label: "PROFIT + LOSS REPORTS", to: "/pls", icon: "💰"},
+  { label: "FRUIT & VEG P+L", to: "/fruitveg", icon: "🍎" },
+  { label: "BUTCHERY & DELI P+L", to: "/butchery", icon: "🥩" },
+  { label: "CHILLED P+L", to: "/chilled", icon: "❄️"},
+  { label: "COFFEE P+L", to: "/coffee", icon: "☕"},
 ];
 
 function Tile({ label, to, icon }) {
@@ -44,7 +41,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-5xl px-6 py-12">
         <h1 className="text-2xl font-medium text-slate-700">
-          Welcome to The Kernans Portal
+          Profit and Loss Reports
         </h1>
 
         {/* gold line */}

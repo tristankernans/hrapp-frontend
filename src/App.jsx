@@ -16,6 +16,7 @@ import FruitAndVeg from "./pages/FruitAndVeg.jsx";
 import Butchery from "./pages/Butchery.jsx";
 import Chilled from "./pages/Chilled.jsx";
 import Coffee from "./pages/Coffee.jsx";
+import PLs from "./pages/PLs.jsx";
 
 function DashboardLayout() {
   const { user, logout } = useAuth();
@@ -73,6 +74,7 @@ function DashboardLayout() {
           <Route path="/butchery" element={<Butchery />} />
           <Route path="/chilled" element={<Chilled />} />
           <Route path="/coffee" element={<Coffee />} />
+          <Route path="/pls" element={<PLs />} />
 
           {/* ✅ Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
