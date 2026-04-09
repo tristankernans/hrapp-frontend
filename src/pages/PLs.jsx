@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 
 const tiles = [
   { label: "FRUIT & VEG P+L", to: "/fruitveg", icon: "🍎" },
