@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const tiles = [
   { label: "FRUIT & VEG P+L", to: "/fruitveg", icon: "🍎" },
@@ -6,7 +6,6 @@ const tiles = [
   { label: "CHILLED P+L", to: "/chilled", icon: "❄️"},
   { label: "COFFEE P+L", to: "/coffee", icon: "☕"},
 ];
-
 
 function Tile({ label, to, icon }) {
   return (
@@ -41,12 +40,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-5xl px-6 py-12">
-        <button
-  onClick={() => navigate(-1) || navigate("/")}
-  className="flex items-center gap-1 rounded-lg border px-3 py-1 text-sm text-slate-600 hover:bg-slate-100"
->
-  ← Back
-</button>
         <h1 className="text-2xl font-medium text-slate-700">
           Profit and Loss Reports
         </h1>
