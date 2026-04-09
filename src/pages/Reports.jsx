@@ -25,6 +25,9 @@ export default function Reports() {
     <div className="mx-auto max-w-7xl px-6 py-10">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Reports</h1>
+        <p className="text-sm text-slate-600">
+            Please select your site by clicking "SiteID".
+          </p>
       </div>
 
       {error && (

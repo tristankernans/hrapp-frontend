@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 
 const tiles = [
-  { label: "HR", to: "/hr", icon: "👥" },
+  { label: "HR/TRAINING", to: "/hr", icon: "👥" },
   { label: "REPORTS", to: "/reports", icon: "📊" },
   { label: "CVS", to: "/cvs", icon: "📄" },
   { label: "DELI WASTE", to: "/deliwaste", icon: "🗑️" },
   { label: "CALLOUT", to: "/callout", icon: "👷" },
-  { label: "FORMS", to: "/forms", icon: "📋" },
+  { label: "END OF DAY CHECKLISTS", to: "/forms", icon: "📋" },
   { label: "FRUIT & VEG P+L", to: "/fruitveg", icon: "🍎" },
   { label: "BUTCHERY & DELI P+L", to: "/butchery", icon: "🥩" },
   { label: "CHILLED P+L", to: "/chilled", icon: "❄️"},

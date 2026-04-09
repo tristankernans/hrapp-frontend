@@ -4,13 +4,13 @@ export default function Reports() {
   const [embedUrl, setEmbedUrl] = useState("");
   const [error, setError] = useState("");
 
-  const CHILLED_URL =
-    "https://analytics.zoho.eu/open-view/126018000017049848/3c6a178d806933181506931d0e414eae127c523fe9cdc6c24fb43ee2ac165564";
+  const COFFEE_URL =
+    "https://analytics.zoho.eu/open-view/126018000017054679/c7d0017c72f37889aaf454d75841f0212993d41aa7030dcd3dc194d15f9ca40c";
 
   async function loadEmbed() {
     try {
       setError("");
-      setEmbedUrl(CHILLED_URL);
+      setEmbedUrl(COFFEE_URL);
     } catch (err) {
       setEmbedUrl("");
       setError("Failed to load dashboard");
@@ -24,7 +24,7 @@ export default function Reports() {
   return (
     <div className="mx-auto max-w-7xl px-6 py-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold">CHILLED P+Ls</h1>
+        <h1 className="text-2xl font-semibold">COFFEE P+Ls</h1>
       </div>
 
       {error && (

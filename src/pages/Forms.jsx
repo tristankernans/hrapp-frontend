@@ -345,7 +345,7 @@ export default function Forms() {
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Forms</h1>
           <p className="text-sm text-slate-600">
-            View Paperform submissions saved into MySQL (including uploaded images).
+            End of day checklists.
           </p>
         </div>
 
